@@ -19,7 +19,12 @@ const config = {
     defaultLocale: "en",
   },
   images: {
-    domains: ["images.clerk.dev"],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "images.clerk.dev",
+      },
+    ],
   },
   typescript: {
     ignoreBuildErrors: true,
@@ -27,6 +32,5 @@ const config = {
   eslint: {
     ignoreDuringBuilds: true,
   },
-  swcMinify: true,
 };
 export default config;

@@ -1,4 +1,4 @@
-import clerkClient from "@clerk/clerk-sdk-node";
+import { clerkClient } from "@clerk/nextjs/server";
 import { createTRPCRouter, publicProcedure } from "../trpc";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
@@ -11,9 +11,11 @@ export const profileReducer = createTRPCRouter({
       })
     )
     .query(async ({ input }) => {
-      const [user] = await clerkClient.users.getUserList({
+      const client = await clerkClient();
+      const { data: users } = await client.users.getUserList({
         username: [input.username],
       });
+      const user = users[0];
       if (!user) {
         throw new TRPCError({
           code: "NOT_FOUND",

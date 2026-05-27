@@ -13,12 +13,12 @@ import { Redis } from "@upstash/redis";
 import type { Post } from "@prisma/client";
 
 const addUserDataToPosts = async (posts: Post[]) => {
-  const users = (
-    await clerkClient.users.getUserList({
-      userId: posts.map((post) => post.authorId),
-      limit: 100, // limits the number users being returned from the clerk client
-    })
-  ).map(filterUserForClient);
+  const client = await clerkClient();
+  const { data: clerkUsers } = await client.users.getUserList({
+    userId: posts.map((post) => post.authorId),
+    limit: 100, // limits the number users being returned from the clerk client
+  });
+  const users = clerkUsers.map(filterUserForClient);
 
   return posts.map((post) => {
     {
