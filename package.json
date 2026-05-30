@@ -9,6 +9,8 @@
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
     "lint": "next lint",
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,md,json,cjs,mjs}\"",
+    "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,md,json,cjs,mjs}\"",
     "start": "next start",
     "typecheck": "tsc --noEmit"
   },

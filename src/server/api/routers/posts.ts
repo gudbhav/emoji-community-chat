@@ -14,6 +14,8 @@ import { desc, eq } from "drizzle-orm";
 import { posts, type Post } from "~/db/schema";
 
 const addUserDataToPosts = async (postRows: Post[]) => {
+  if (postRows.length === 0) return [];
+
   const users = (
     await clerkClient.users.getUserList({
       userId: postRows.map((post) => post.authorId),
@@ -22,22 +24,15 @@ const addUserDataToPosts = async (postRows: Post[]) => {
   ).map(filterUserForClient);
 
   return postRows.map((post) => {
-    {
-      const author = users.find((user) => user.id === post.authorId);
-      if (!author || !author.username) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Author post not found ❌",
-        });
-      }
-      return {
-        post,
-        author: {
-          ...author,
-          username: author.username,
-        },
-      };
+    const author = users.find((user) => user.id === post.authorId);
+    if (!author) {
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Author for post not found",
+      });
     }
+
+    return { post, author };
   });
 };
 
@@ -73,29 +68,40 @@ export const postsRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const authorId = ctx.userId;
 
-      const { success } = await ratelimit.limit(authorId);
-      if (!success) {
-        throw new TRPCError({
-          code: "TOO_MANY_REQUESTS",
-        });
-      }
+      try {
+        const { success } = await ratelimit.limit(authorId);
+        if (!success) {
+          throw new TRPCError({
+            code: "TOO_MANY_REQUESTS",
+          });
+        }
 
-      const [post] = await ctx.db
-        .insert(posts)
-        .values({
-          authorId,
-          content: input.content,
-        })
-        .returning();
+        const [post] = await ctx.db
+          .insert(posts)
+          .values({
+            authorId,
+            content: input.content,
+          })
+          .returning();
 
-      if (!post) {
+        if (!post) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to create post",
+          });
+        }
+
+        return post;
+      } catch (error) {
+        if (error instanceof TRPCError) throw error;
+
+        console.error("post.create failed:", error);
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Failed to create post",
+          cause: error,
         });
       }
-
-      return post;
     }),
   getPostsByUserId: publicProcedure
     .input(
