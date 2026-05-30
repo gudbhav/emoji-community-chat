@@ -5,14 +5,18 @@
   "scripts": {
     "build": "next build",
     "dev": "next dev",
-    "postinstall": "prisma generate",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push",
     "lint": "next lint",
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,md,json,cjs,mjs}\"",
+    "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,md,json,cjs,mjs}\"",
     "start": "next start",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.39.2",
-    "@prisma/client": "^4.14.0",
+    "@neondatabase/serverless": "^1.1.0",
     "@t3-oss/env-nextjs": "^0.3.1",
     "@tanstack/react-query": "^4.29.7",
     "@trpc/client": "^10.45.3",
@@ -22,11 +26,13 @@
     "@upstash/ratelimit": "^0.4.3",
     "@upstash/redis": "^1.22.0",
     "dayjs": "^1.11.8",
+    "drizzle-orm": "^0.45.2",
     "next": "^15.5.16",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-hot-toast": "^2.4.1",
     "superjson": "1.12.2",
+    "uuid": "^14.0.0",
     "zod": "^3.22.3"
   },
   "devDependencies": {
@@ -38,12 +44,12 @@
     "@typescript-eslint/eslint-plugin": "^5.59.6",
     "@typescript-eslint/parser": "^5.59.6",
     "autoprefixer": "^10.4.14",
+    "drizzle-kit": "^0.31.10",
     "eslint": "^8.40.0",
     "eslint-config-next": "^15.5.16",
     "postcss": "^8.5.10",
     "prettier": "^2.8.8",
     "prettier-plugin-tailwindcss": "^0.2.8",
-    "prisma": "^4.14.0",
     "tailwindcss": "^3.3.0",
     "typescript": "^5.0.4"
   },
