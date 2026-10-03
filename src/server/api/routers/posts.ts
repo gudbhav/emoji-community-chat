@@ -16,12 +16,12 @@ import { posts, type Post } from "~/db/schema";
 const addUserDataToPosts = async (postRows: Post[]) => {
   if (postRows.length === 0) return [];
 
-  const users = (
-    await clerkClient.users.getUserList({
-      userId: postRows.map((post) => post.authorId),
-      limit: 100, // limits the number users being returned from the clerk client
-    })
-  ).map(filterUserForClient);
+  const client = await clerkClient();
+  const { data: clerkUsers } = await client.users.getUserList({
+    userId: postRows.map((post) => post.authorId),
+    limit: 100, // limits the number users being returned from the clerk client
+  });
+  const users = clerkUsers.map(filterUserForClient);
 
   return postRows.map((post) => {
     const author = users.find((user) => user.id === post.authorId);
